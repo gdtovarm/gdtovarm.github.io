@@ -68,14 +68,14 @@
 
         function updatePlayerMovement() {
             this.time.addEvent({
-                delay: 60,
+                delay: 30,
                 callback: function() {
                     if (this.KeyUp.isDown) {
-                        this.player.y -= 8;
+                        this.player.y -= 6;
                     }
             
                     if (this.KeyDown.isDown) {
-                        this.player.y += 8;
+                        this.player.y += 6;
                     }
             
                 },
