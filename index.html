@@ -29,16 +29,28 @@
         function preload ()
         {
             this.load.image('spaceship', 'assets/sprites/spaceship-1.png');
+            this.load.spritesheet('ship', 'assets/sprites/spaceship-1-sheet.png', {frameWidth: 64, frameHeight: 64});
             this.load.image('fireball', 'assets/sprites/fireball.png');
             this.load.image('red', 'assets/particles/red.png');
         }
     
         function create ()
         {
-            this.player = this.physics.add.sprite(70, 300, 'spaceship');
+            
+
+            this.anims.create({
+                key: "ship",
+                frames: this.anims.generateFrameNumbers("ship"),
+                frameRate: 0,
+                repeat: -1
+            });
+    
+            this.player = this.physics.add.sprite(70, 300, 'ship');
             
             this.KeyUp = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
             this.KeyDown = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+            this.KeyLeft = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+            this.KeyRight = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
             this.KeyZ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
 
             this.playerShootDelay = 30;
@@ -72,12 +84,21 @@
                 callback: function() {
                     if (this.KeyUp.isDown) {
                         this.player.y -= 6;
+                        this.player.setFrame(1);
                     }
-            
                     if (this.KeyDown.isDown) {
                         this.player.y += 6;
+                        this.player.setFrame(2);
                     }
-            
+                    if (this.KeyRight.isDown) {
+                        this.player.x += 6;
+                    }
+                    if (this.KeyLeft.isDown) {
+                        this.player.x -= 6;
+                    }
+                    if (!this.KeyUp.isDown && !this.KeyDown.isDown) {
+                        this.player.setFrame(0);
+                    }
                 },
                 callbackScope: this,
                 loop: true
