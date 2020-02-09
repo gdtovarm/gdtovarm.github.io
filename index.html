@@ -59,13 +59,7 @@
             updatePlayerMovement.bind(this)();
             updatePlayerShooting.bind(this)();
             updateLasers.bind(this)();
-            var particles = this.add.particles('red');
-    
-            this.redParticleEmiter = particles.createEmitter({
-                speed: 100,
-                scale: { start: 1, end: 0 },
-                blendMode: 'ADD'
-            });
+            this.redParticles = this.add.particles('red');
 
             /*var logo = this.physics.add.image(100, 100, 'logo');
     
@@ -112,9 +106,17 @@
                         if (this.playerShootTick > this.playerShootDelay) {
                             var laser = this.physics.add.sprite(this.player.x, this.player.y, 'fireball');
                             this.playerLasers.add(laser);
-                
+
+                            var laserParticles = this.redParticles.createEmitter({
+                                speed: 100,
+                                scale: { start: 1, end: 0 },
+                                blendMode: 'ADD'
+                            });
+
+                            console.log(laserParticles)
                             //this.sfx.laserPlayer.play();
-                            this.redParticleEmiter.startFollow(laser);
+                            laserParticles.startFollow(laser);
+                            laser.particleRef = laserParticles;
                             this.playerShootTick = 0;
                         }
                     }	
@@ -137,6 +139,7 @@
                             //this.createExplosion(laser.x, laser.y);
                     
                             if (laser) {
+                                laser.particleRef.explode();
                                 laser.destroy();
                             }
                         }
