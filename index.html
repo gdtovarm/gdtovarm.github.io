@@ -23,8 +23,6 @@
         };
     
         var game = new Phaser.Game(config);
-
-        console.log(game);
     
         function preload ()
         {
@@ -112,8 +110,6 @@
                                 scale: { start: 1, end: 0 },
                                 blendMode: 'ADD'
                             });
-
-                            console.log(laserParticles)
                             //this.sfx.laserPlayer.play();
                             laserParticles.startFollow(laser);
                             laser.particleRef = laserParticles;
