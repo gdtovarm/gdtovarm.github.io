@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <title>Beams</title>
         <link rel="icon" href="favicon.ico">
         <style type="text/css">
             html,
@@ -10,9 +11,16 @@
                 padding: 0 !important;
                 overflow: hidden !important;
             }
+            @font-face {
+                font-family: Arcadepix;
+                src: url("../assets/fonts/ARCADEPI.TTF");
+                font-weight: 400;
+                font-weight: normal;
+            }
         </style>
     </head>
     <body>
+        <div style="font-family:Arcadepix; position:absolute; left:-1000px; visibility:hidden;">.</div>
         <script src="dist/vendors.bundle.js"></script>
         <script src="dist/app.bundle.js"></script>
     </body>

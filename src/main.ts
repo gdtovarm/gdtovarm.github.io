@@ -53,6 +53,29 @@ export class GameScene extends Phaser.Scene {
     
         this.playerLasers = this.add.group();
         this.redParticles = this.add.particles('red');
+
+        this.add.text(
+            32,
+            32,
+            'Move with arrow keys, shoot with Z',
+            {
+                fontFamily: "Arcadepix",
+                fontSize: 16,
+                align: "left"
+            }
+        );
+        
+        
+        this.add.text(
+            32,
+            64,
+            'Coming soon... ?',
+            {
+                fontFamily: "Arcadepix",
+                fontSize: 16,
+                align: "left"
+            }
+        );
     
         this.updatePlayerMovement();
         this.updatePlayerShooting();
