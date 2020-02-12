@@ -103,18 +103,27 @@ export class GameScene extends Phaser.Scene {
                 align: "center"
             }
         );
-    
-        this.physics.add.overlap(this.playerLasers, this.enemies, function(laser: any, enemy: any) {
+
+        this.physics.add.overlap(this.playerLasers, this.enemies, (laser: any, enemy: any) => {
             if (laser) {
                 laser.particleRef.explode();
                 laser.destroy();
+                const emitter = this.fireParticles.createEmitter({
+                    speed: {min: 20, max: 60},
+                    scale: {start: 1.5, end: 0},
+                    blendMode: 'ADD',
+                }).startFollow(laser);
+
+                this.time.delayedCall(400, () => {
+                    emitter.explode(0, 0, 0);
+                });
             }
             if (enemy) {
                 this.score++;
                 this.scoreText.setText('Enemies destroyed: ' + this.score)
                 enemy.destroy();
             }
-        }, null, this);
+        });
 
         this.updatePlayerMovement();
         this.updatePlayerShooting();
@@ -191,12 +200,12 @@ export class GameScene extends Phaser.Scene {
     
     private updateLasers() {
         this.time.addEvent({
-            delay: 30,
+            delay: 15,
             callback: function() {
                 for (var i = 0; i < this.playerLasers.getChildren().length; i++) {
                     var laser = this.playerLasers.getChildren()[i];
                 
-                    laser.x += laser.displayWidth;
+                    laser.x += laser.displayWidth / 2;
                 
                     if (laser.x > this.game.config.width) {
                         //this.createExplosion(laser.x, laser.y);
