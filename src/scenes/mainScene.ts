@@ -18,6 +18,7 @@ export class GameScene extends Phaser.Scene {
 
     public playerLasers: Phaser.GameObjects.Group;
     public enemies: Phaser.GameObjects.Group;
+    public enemyLasers: Phaser.GameObjects.Group;
 
     public redParticles: Phaser.GameObjects.Particles.ParticleEmitterManager;
     public fireParticles: Phaser.GameObjects.Particles.ParticleEmitterManager;
@@ -44,6 +45,7 @@ export class GameScene extends Phaser.Scene {
         this.load.spritesheet('ship', 'assets/sprites/spaceship-1-sheet.png', {frameWidth: 64, frameHeight: 64});
 
         this.load.image('fireball', 'assets/sprites/fireball.png');
+        this.load.image('red-laser', 'assets/sprites/enemy-laser.png');
         this.load.image('fire-small', 'assets/particles/fire-small.png');
         this.load.image('red', 'assets/particles/red.png');
     }
@@ -68,6 +70,8 @@ export class GameScene extends Phaser.Scene {
     
         this.playerLasers = this.add.group();
         this.enemies = this.add.group();
+        this.enemyLasers = this.add.group();
+
         this.redParticles = this.add.particles('red');
         this.fireParticles = this.add.particles('fire-small');
 
@@ -129,6 +133,7 @@ export class GameScene extends Phaser.Scene {
         this.updatePlayerShooting();
         this.updateLasers();
         this.attemptMakeEnemy();
+        this.updateEnemiesShooting();
     }
 
     public update() {
@@ -184,7 +189,8 @@ export class GameScene extends Phaser.Scene {
                             speedY: {min: -20, max: 20},
                             scale: {start: 1, end: 0},
                             speedX: {min: 50, max: 100},
-                            blendMode: 'ADD'
+                            blendMode: 'ADD',
+                            lifespan: 250
                         });
                         //this.sfx.laserPlayer.play();
                         laserParticles.startFollow(laser);
@@ -221,18 +227,20 @@ export class GameScene extends Phaser.Scene {
             loop: true
         });
         
-        /* this.time.addEvent({
-            delay: 128,
-            callback: function() {
+        this.time.addEvent({
+            delay: 15,
+            callback: () => {
                 for (var i = 0; i < this.enemyLasers.getChildren().length; i++) {
-                var laser = this.enemyLasers.getChildren()[i];
-            
-                laser.y += laser.displayHeight;
+                    var laser = this.enemyLasers.getChildren()[i] as Phaser.GameObjects.Sprite;
+                    laser.x -= 15;
+                    if (laser.x < 10) {
+                        laser.destroy();
+                    }
                 }
             },
             callbackScope: this,
             loop: true
-        }); */
+        });
     }
 
     private attemptMakeEnemy() {
@@ -253,6 +261,25 @@ export class GameScene extends Phaser.Scene {
                 }
             },
             callbackScope: this,
+            loop: true
+        });
+    }
+
+    private updateEnemiesShooting() {
+        this.time.addEvent({
+            delay: 300,
+            callback: () => {
+                for (var i = 0; i < this.enemies.getChildren().length; i++) {
+                    const enemy = this.enemies.getChildren()[i] as Phaser.GameObjects.Sprite;
+            
+                    if (Phaser.Math.Between(0, 100) > 95) {
+                        var laser = this.physics.add.sprite(enemy.x, enemy.y, 'red-laser');
+                        this.enemyLasers.add(laser);
+            
+                        //this.sfx.laserEnemy.play();
+                    }
+                }
+            },
             loop: true
         });
     }
