@@ -33,6 +33,7 @@ export class GameScene extends Phaser.Scene {
 
     public scoreText: Phaser.GameObjects.Text;
     private score = 0;
+    private boundaries: { top: number, bottom: number, left: number, right: number };
 
     constructor() {
         super(sceneCfg);
@@ -51,7 +52,14 @@ export class GameScene extends Phaser.Scene {
     }
 
     public create() {
-        this.verticalCenter = (this.game.config.height as number) / 2;
+        const height = Number(this.game.config.height);
+        const width = Number(this.game.config.width);
+
+        this.verticalCenter = height / 2;
+        this.boundaries = {
+            top: 32, bottom: height - 32,
+            left: 32, right: width - 32
+        }
 
         this.anims.create({
             key: "ship",
@@ -151,26 +159,25 @@ export class GameScene extends Phaser.Scene {
     private updatePlayerMovement() {
         this.time.addEvent({
             delay: 30,
-            callback: function() {
-                if (this.KeyUp.isDown) {
+            callback: () => {
+                if (this.KeyUp.isDown && this.player.y > this.boundaries.top) {
                     this.player.y -= 6;
                     this.player.setFrame(1);
                 }
-                if (this.KeyDown.isDown) {
+                if (this.KeyDown.isDown && this.player.y < this.boundaries.bottom) {
                     this.player.y += 6;
                     this.player.setFrame(2);
                 }
-                if (this.KeyRight.isDown) {
+                if (this.KeyRight.isDown && this.player.x < this.boundaries.right) {
                     this.player.x += 6;
                 }
-                if (this.KeyLeft.isDown) {
+                if (this.KeyLeft.isDown && this.player.x > this.boundaries.left) {
                     this.player.x -= 6;
                 }
                 if (!this.KeyUp.isDown && !this.KeyDown.isDown) {
                     this.player.setFrame(0);
                 }
             },
-            callbackScope: this,
             loop: true
         });
     }
