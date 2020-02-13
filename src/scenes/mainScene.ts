@@ -1,5 +1,6 @@
 import * as Phaser from 'phaser';
 import { FONT_SIZE } from '../conf/constants';
+import { Player } from '../entities/player';
 
 const sceneCfg: Phaser.Types.Scenes.SettingsConfig = {
     active: false,
@@ -9,7 +10,7 @@ const sceneCfg: Phaser.Types.Scenes.SettingsConfig = {
 
 export class GameScene extends Phaser.Scene {
 
-    public player: Phaser.GameObjects.Sprite;
+    public player: Player;
     public KeyUp: Phaser.Input.Keyboard.Key;
     public KeyDown: Phaser.Input.Keyboard.Key;
     public KeyLeft: Phaser.Input.Keyboard.Key;
@@ -33,7 +34,6 @@ export class GameScene extends Phaser.Scene {
 
     public scoreText: Phaser.GameObjects.Text;
     private score = 0;
-    private boundaries: { top: number, bottom: number, left: number, right: number };
 
     constructor() {
         super(sceneCfg);
@@ -56,27 +56,15 @@ export class GameScene extends Phaser.Scene {
         const width = Number(this.game.config.width);
 
         this.verticalCenter = height / 2;
-        this.boundaries = {
+        const boundaries = {
             top: 32, bottom: height - 32,
             left: 32, right: width - 32
         }
-
-        this.anims.create({
-            key: "ship",
-            frames: this.anims.generateFrameNumbers('ship', {}),
-            frameRate: 0,
-            repeat: -1
-        });
     
-        this.player = this.physics.add.sprite(70, this.verticalCenter, 'ship');
-        
-        this.KeyUp = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
-        this.KeyDown = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
-        this.KeyLeft = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
-        this.KeyRight = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-        this.KeyZ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
+        this.player = new Player(this, 70, this.verticalCenter, boundaries);
     
         this.playerLasers = this.add.group();
+
         this.enemies = this.add.group();
         this.enemyLasers = this.add.group();
 
@@ -137,8 +125,6 @@ export class GameScene extends Phaser.Scene {
             }
         });
 
-        this.updatePlayerMovement();
-        this.updatePlayerShooting();
         this.updateLasers();
         this.attemptMakeEnemy();
         this.updateEnemiesShooting();
@@ -154,61 +140,6 @@ export class GameScene extends Phaser.Scene {
                 enemy.destroy();
             }
         }
-    }
-    
-    private updatePlayerMovement() {
-        this.time.addEvent({
-            delay: 30,
-            callback: () => {
-                if (this.KeyUp.isDown && this.player.y > this.boundaries.top) {
-                    this.player.y -= 6;
-                    this.player.setFrame(1);
-                }
-                if (this.KeyDown.isDown && this.player.y < this.boundaries.bottom) {
-                    this.player.y += 6;
-                    this.player.setFrame(2);
-                }
-                if (this.KeyRight.isDown && this.player.x < this.boundaries.right) {
-                    this.player.x += 6;
-                }
-                if (this.KeyLeft.isDown && this.player.x > this.boundaries.left) {
-                    this.player.x -= 6;
-                }
-                if (!this.KeyUp.isDown && !this.KeyDown.isDown) {
-                    this.player.setFrame(0);
-                }
-            },
-            loop: true
-        });
-    }
-
-    private updatePlayerShooting() {
-        this.time.addEvent({
-            delay: 15,
-            callback: function() {
-                this.playerShootTick++;
-                if (this.KeyZ.isDown && this.player.active) {
-                    if (this.playerShootTick > this.playerShootDelay) {
-                        const laser = this.physics.add.sprite(this.player.x, this.player.y, 'fireball');
-                        this.playerLasers.add(laser);
-    
-                        const laserParticles = this.fireParticles.createEmitter({
-                            speedY: {min: -20, max: 20},
-                            scale: {start: 1, end: 0},
-                            speedX: {min: 50, max: 100},
-                            blendMode: 'ADD',
-                            lifespan: 250
-                        });
-                        //this.sfx.laserPlayer.play();
-                        laserParticles.startFollow(laser);
-                        laser.particleRef = laserParticles;
-                        this.playerShootTick = 0;
-                    }
-                }	
-            },
-            callbackScope: this,
-            loop: true
-        });
     }
     
     private updateLasers() {
