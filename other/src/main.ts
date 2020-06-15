@@ -7,8 +7,8 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
     title: 'Tetris?',
     type: Phaser.AUTO,
     scale: {
-        width: window.innerWidth,
-        height: window.innerHeight,
+        width: 1600,
+        height: 900,
     },
     physics: {
         default: 'arcade',
