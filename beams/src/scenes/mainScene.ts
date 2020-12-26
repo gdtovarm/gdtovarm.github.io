@@ -19,15 +19,13 @@ export class GameScene extends Phaser.Scene {
     public redParticles: Phaser.GameObjects.Particles.ParticleEmitterManager;
     public fireParticles: Phaser.GameObjects.Particles.ParticleEmitterManager;
 
-    public playerShootDelay = 30;
-    public playerShootTick = 0;
-
     public enemyCreationTick = 0;
     public enemyCreationDelay = 10;
 
     public verticalCenter: number;
 
     public scoreText: Phaser.GameObjects.Text;
+
     private score = 0;
 
     constructor() {
@@ -67,13 +65,12 @@ export class GameScene extends Phaser.Scene {
         this.fireParticles = this.add.particles('fire-small');
 
         this.add.text(32, 32, 'Move with arrow keys, shoot with Z', ARCADE_PIX_FONT);
-        this.add.text(32, 64, 'Coming soon... ?', ARCADE_PIX_FONT);
 
-        this.scoreText = this.add.text(480, 32,'Enemies destroyed: 0', ARCADE_PIX_FONT);
+        this.scoreText = this.add.text(480, 32, 'Enemies destroyed: 0', ARCADE_PIX_FONT);
 
-        this.physics.add.overlap(this.playerLasers, this.enemies, (laser: any, enemy: any) => {
+        this.physics.add.overlap(this.playerLasers, this.enemies, (laser: Phaser.Physics.Arcade.Sprite, enemy: any) => {
             if (laser) {
-                laser.particleRef.explode();
+                laser.getData('particleRef').explode();
                 laser.destroy();
                 const emitter = this.fireParticles.createEmitter({
                     speed: {min: 20, max: 60},
@@ -93,7 +90,8 @@ export class GameScene extends Phaser.Scene {
         });
 
         this.physics.add.overlap(this.player, this.enemyLasers, (player: any, laser: any) => {
-            this.scene.start('Game over');
+            this.player.takeDamage(1);
+            laser.destroy();
         });
 
         this.updateLasers();
@@ -126,7 +124,7 @@ export class GameScene extends Phaser.Scene {
                         //this.createExplosion(laser.x, laser.y);
                 
                         if (laser) {
-                            laser.particleRef.explode();
+                            laser.getData('particleRef').explode();
                             laser.destroy();
                         }
                     }

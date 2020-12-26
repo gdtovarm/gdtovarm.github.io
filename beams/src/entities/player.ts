@@ -1,4 +1,6 @@
 import * as Phaser from 'phaser';
+import { ARCADE_PIX_FONT } from '../conf/constants';
+import { GameScene } from '../scenes/mainScene';
 
 export class Player extends Phaser.GameObjects.Sprite {
     public KeyUp: Phaser.Input.Keyboard.Key;
@@ -7,9 +9,16 @@ export class Player extends Phaser.GameObjects.Sprite {
     public KeyRight: Phaser.Input.Keyboard.Key;
     public KeyZ: Phaser.Input.Keyboard.Key;
 
+    public playerShootDelay = 30;
+    public playerShootTick = 0;
+
+    private maxHealth: number;
+    private health: number;
+
+    public textHealth: Phaser.GameObjects.Text;
     private boundaries: any;
 
-    constructor(scene: Phaser.Scene, x: number, y: number, boundaries: any) {
+    constructor(scene: GameScene, x: number, y: number, boundaries: any) {
         super(scene, x, y, 'ship');
         this.boundaries = boundaries;
 
@@ -20,12 +29,38 @@ export class Player extends Phaser.GameObjects.Sprite {
             repeat: -1
         });
 
-		this.scene.add.existing(this);
+        this.scene.add.existing(this);
         this.scene.physics.world.enableBody(this, 0);
+
+        this.maxHealth = 3;
+        this.health = this.maxHealth;
         
         this.addMovementKeys();
         this.updatePlayerMovement();
         this.updatePlayerShooting();
+    
+        this.textHealth = this.scene.add.text(32, 64, '', ARCADE_PIX_FONT);
+        this.updateHealth();
+    }
+
+    public getHealth() {
+        return this.health;
+    }
+
+    public getMaxHealth() {
+        return this.maxHealth;
+    }
+
+    private updateHealth() {
+        this.textHealth.text = `Health: ${this.getHealth()}/${this.getMaxHealth()}`;
+    }
+
+    public takeDamage(damage: number) {
+        this.health -= damage;
+        this.updateHealth();
+        if (this.health <= 0) {
+            this.scene.scene.start('Game over');
+        }
     }
 
     private addMovementKeys() {
@@ -64,16 +99,18 @@ export class Player extends Phaser.GameObjects.Sprite {
 
     private updatePlayerShooting() {
         const player = this;
+
         this.scene.time.addEvent({
             delay: 15,
-            callback: function() {
+            callback: () => {
+                const gscene = (this.scene as GameScene);
                 this.playerShootTick++;
                 if (player.KeyZ.isDown && player.active) {
                     if (this.playerShootTick > this.playerShootDelay) {
-                        const laser = this.physics.add.sprite(player.x, player.y, 'fireball');
-                        this.playerLasers.add(laser);
+                        const laser = gscene.physics.add.sprite(player.x, player.y, 'fireball');
+                        gscene.playerLasers.add(laser);
     
-                        const laserParticles = this.fireParticles.createEmitter({
+                        const laserParticles = gscene.fireParticles.createEmitter({
                             speedY: {min: -20, max: 20},
                             scale: {start: 1, end: 0},
                             speedX: {min: 50, max: 100},
@@ -82,7 +119,7 @@ export class Player extends Phaser.GameObjects.Sprite {
                         });
                         //this.sfx.laserPlayer.play();
                         laserParticles.startFollow(laser);
-                        laser.particleRef = laserParticles;
+                        laser.setData('particleRef', laserParticles);
                         this.playerShootTick = 0;
                     }
                 }	

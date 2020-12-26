@@ -34,7 +34,7 @@ export class GameOverScene extends Phaser.Scene {
 
         instructionText.x = instructionText.x - (instructionText.width / 2);
 
-        this.input.keyboard.on('keydown', () => {
+        this.input.keyboard.on('keyup', () => {
             this.scene.start('Main menu');
         });
     }
