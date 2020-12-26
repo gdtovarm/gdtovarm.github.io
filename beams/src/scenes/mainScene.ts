@@ -1,5 +1,5 @@
 import * as Phaser from 'phaser';
-import { FONT_SIZE } from '../conf/constants';
+import { ARCADE_PIX_FONT } from '../conf/constants';
 import { Player } from '../entities/player';
 
 const sceneCfg: Phaser.Types.Scenes.SettingsConfig = {
@@ -11,11 +11,6 @@ const sceneCfg: Phaser.Types.Scenes.SettingsConfig = {
 export class GameScene extends Phaser.Scene {
 
     public player: Player;
-    public KeyUp: Phaser.Input.Keyboard.Key;
-    public KeyDown: Phaser.Input.Keyboard.Key;
-    public KeyLeft: Phaser.Input.Keyboard.Key;
-    public KeyRight: Phaser.Input.Keyboard.Key;
-    public KeyZ: Phaser.Input.Keyboard.Key;
 
     public playerLasers: Phaser.GameObjects.Group;
     public enemies: Phaser.GameObjects.Group;
@@ -71,38 +66,10 @@ export class GameScene extends Phaser.Scene {
         this.redParticles = this.add.particles('red');
         this.fireParticles = this.add.particles('fire-small');
 
-        this.add.text(
-            32,
-            32,
-            'Move with arrow keys, shoot with Z',
-            {
-                fontFamily: "Arcadepix",
-                fontSize: FONT_SIZE,
-                align: "left"
-            }
-        );
+        this.add.text(32, 32, 'Move with arrow keys, shoot with Z', ARCADE_PIX_FONT);
+        this.add.text(32, 64, 'Coming soon... ?', ARCADE_PIX_FONT);
 
-        this.add.text(
-            32,
-            64,
-            'Coming soon... ?',
-            {
-                fontFamily: "Arcadepix",
-                fontSize: FONT_SIZE,
-                align: "left"
-            }
-        );
-
-        this.scoreText = this.add.text(
-            400,
-            32,
-            'Enemies destroyed: 0',
-            {
-                fontFamily: "Arcadepix",
-                fontSize: FONT_SIZE,
-                align: "center"
-            }
-        );
+        this.scoreText = this.add.text(480, 32,'Enemies destroyed: 0', ARCADE_PIX_FONT);
 
         this.physics.add.overlap(this.playerLasers, this.enemies, (laser: any, enemy: any) => {
             if (laser) {
@@ -114,7 +81,7 @@ export class GameScene extends Phaser.Scene {
                     blendMode: 'ADD',
                 }).startFollow(laser);
 
-                this.time.delayedCall(400, () => {
+                this.time.delayedCall(200, () => {
                     emitter.explode(0, 0, 0);
                 });
             }
@@ -123,6 +90,10 @@ export class GameScene extends Phaser.Scene {
                 this.scoreText.setText('Enemies destroyed: ' + this.score)
                 enemy.destroy();
             }
+        });
+
+        this.physics.add.overlap(this.player, this.enemyLasers, (player: any, laser: any) => {
+            this.scene.start('Game over');
         });
 
         this.updateLasers();
